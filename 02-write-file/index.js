@@ -9,6 +9,7 @@ const output = fs.createWriteStream(filePath);
 stdout.write('Enter your message: ');
 stdin.on('data', (e) => {
   if (e.includes('exit')) bye();
+  process.on('SIGINT', () => {bye()});
   output.write(e);
 });
 
