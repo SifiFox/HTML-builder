@@ -42,13 +42,20 @@ async function compareMarkup(bundle){
     const targetMarkupPath = path.join(bundle, 'index.html');
     const templateContent = await fsPromises.readFile(templatePath);
     await fsPromises.writeFile(targetMarkupPath, templateContent);
-    const components = await fsPromises.readdir(componentsPath);
+    const components = await fsPromises.readdir(componentsPath,{
+        encoding: 'utf-8',
+        withFileTypes: true,
+    });
+
     let targetMarkupContent = await fsPromises.readFile(targetMarkupPath);
     for (let component of components){
-        const componentPath = path.join(componentsPath, component)
-        const componentName = path.parse(componentPath).name;
-        const componentContent = await fs.promises.readFile(componentPath);
-        targetMarkupContent =  targetMarkupContent.toString().replace(`{{${componentName}}}`, componentContent.toString());
+        const componentPath = path.join(componentsPath, component.name)
+        const componentName = component.name.split('.').slice(0, -1).join('.')
+        const componentExt = path.extname(componentPath);
+        if (component.isFile() && componentExt === '.html') {
+            const componentContent = await fsPromises.readFile(componentPath);
+            targetMarkupContent =  targetMarkupContent.toString().replace(`{{${componentName}}}`, componentContent.toString());
+        }
     }
     await fsPromises.writeFile(targetMarkupPath, targetMarkupContent);
 }
