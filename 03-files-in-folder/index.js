@@ -1,16 +1,16 @@
-const { readdirSync, statSync } = require('fs');
 const path = require('path');
+const fsPromises = require('fs/promises');
 
-function getFilesStats() {
+async function getFilesStats() {
   try {
-    const files = readdirSync(path.join(__dirname, 'secret-folder'), {
+    const files = await fsPromises.readdir(path.join(__dirname, 'secret-folder'), {
       withFileTypes: true,
     });
 
     for (const file of files) {
       if (file.isFile()) {
         const filePath = path.join(__dirname, `secret-folder/${file.name}`);
-        const fileStats = statSync(filePath);
+        const fileStats = await fsPromises.stat(filePath);
         const fileExt = path.extname(filePath);
         const fileName = path.parse(filePath).name;
         console.log(
